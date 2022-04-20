@@ -1,0 +1,11 @@
+{
+  "name": "file-service",
+  "version": "1.0.0",
+  "description": "A restful api service to allow users access the files.",
+  "main": "server/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hayate",
+  "license": "ISC"
+}

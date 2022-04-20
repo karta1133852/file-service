@@ -1,0 +1,15 @@
+debug.log
+
+.vscode
+
+node_modules
+
+.env
+
+log
+
+test.js
+
+.DS_Store
+
+.serverless
