@@ -4,8 +4,31 @@
   "description": "A restful api service to allow users access the files.",
   "main": "server/app.js",
   "scripts": {
+    "start": "cross-env NODE_ENV=production node server/app.js",
+    "dev": "cross-env NODE_ENV=development IS_LOCAL=true nodemon --exec \"node server/app.js\"",
+    "inspect:license": "license-checker --summary --failOn \"AGPL 3.0\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Hayate",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
+    "cross-env": "^5.2.0",
+    "dotenv": "^8.1.0",
+    "express": "^4.16.4",
+    "express-validation": "^1.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.4",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "autocannon": "^7.8.1",
+    "license-checker": "^25.0.1",
+    "nodemon": "^1.19.0"
+  }
 }
