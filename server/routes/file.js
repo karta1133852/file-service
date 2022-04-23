@@ -8,6 +8,7 @@ const redisClient = require('../models/redisClient')
 const ForbiddenError = require('../utils/error/ForbiddenError')
 const NotFoundError = require('../utils/error/NotFoundError')
 
+const dynamicUploadSingle = require('../models/multer')
 const fileOperations = require('../utils/files/fileOperations')
 // rw-lock
 const createHash = require('../utils/createHash')
@@ -21,7 +22,7 @@ let fileRWLocks = {
 
 // TODO GET request
 
-router.post('/*', require('../models/multer'), async (req, res, next) => {
+router.post('/*', dynamicUploadSingle, async (req, res, next) => {
   
   try {
     const sha256 = req.file.pathSha256
@@ -32,7 +33,7 @@ router.post('/*', require('../models/multer'), async (req, res, next) => {
     await fileRWLocks.fileLocks[sha256].rwLock.write(async () => {
 
       const isExists = await fileOperations.isExists(req.file.pathFile)
-      if (!isExists) {
+      if (isExists) {
         throw new ForbiddenError('Target file already exists.')
       }
 
@@ -52,20 +53,21 @@ router.post('/*', require('../models/multer'), async (req, res, next) => {
   }
 })
 
-router.patch('/*', require('../models/multer'), async (req, res, next) => {
+router.patch('/*', dynamicUploadSingle, async (req, res, next) => {
   
   try {
-    let hasAccess = await fileOperations.checkAccess(req, req.file.pathFile)
-    if (!hasAccess) {
-      throw new ForbiddenError('Target file already exists.')
-    }
-
-    let sha256 = req.file.pathSha256
+    const sha256 = req.file.pathSha256
   
     // start lock
     await setFileLock(fileRWLocks, sha256, 'start')
   
     await fileRWLocks.fileLocks[sha256].rwLock.write(async () => {
+
+      const isExists = await fileOperations.isExists(req.file.pathFile)
+      if (!isExists) {
+        throw new ForbiddenError('Target file already exists.')
+      }
+
       // TODO update file to specified path
       /*await fileOperations.createDir(req.file.pathDir)
       await fileOperations.copyFile(req.file.path, req.file.pathFile, false)*/
@@ -83,11 +85,11 @@ router.patch('/*', require('../models/multer'), async (req, res, next) => {
   }
 })
 
-router.delete('/*', require('../models/multer'), async (req, res, next) => {
+router.delete('/*', dynamicUploadSingle, async (req, res, next) => {
   
   try {
-    let pathFile = path.join(process.env.ROOT_PATH, req.path)
-    let sha256 = createHash('sha256', pathFile)
+    const pathFile = path.join(process.env.ROOT_PATH, req.path)
+    const sha256 = createHash('sha256', pathFile)
 
     if (await fileOperations.checkType(pathFile) === 'Directory') {
       throw new ForbiddenError('Cannot delete a directory.')
