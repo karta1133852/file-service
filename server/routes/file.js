@@ -7,11 +7,10 @@ const path = require('path')
 
 
 router.post('/*', require('../models/multer'), validatePath, (req, res, next) => {
-  
-  console.log(req.file)
+
   res.message = req.file
 
   next()
 })
 
-module.exports = router;
+module.exports = router

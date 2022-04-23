@@ -13,7 +13,7 @@ const app = express()
 const cors = require('cors')
 const passport = require('./config/passport/passport')
 const ForbiddenError = require('./utils/error/ForbiddenError')
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
 
 // 設定 passport 物件並初始化
 //app.use(passport.initialize())
