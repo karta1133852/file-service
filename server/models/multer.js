@@ -1,41 +1,37 @@
 const multer = require('multer')
-const fs = require('fs')
-const fsPromise = require('promise-fs')
-const { checkAccess } = require('../utils/files/checkAccess')
+const crypto = require('crypto')
+const path = require('path')
 
 // 動態處理路徑
 const dynamicUploadSingle = async (req, res, next) => {
 
-  let path = process.env.ROOT_PATH + req.path.replaceAll('/', '\\')
-  if (path.at(-1) === '\\') {
-    path.slice(0, -1)
-  }
+  let localPath = path.join(process.env.ROOT_PATH, req.path)
   
+  let pathFile, pathDir
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      let pathFile, pathDir
-      // 同時考慮 {localSystemFilePath} 為 file/dir 的可能性
-      if (path.endsWith(file.originalname)) {
-        pathFile = path
-        pathDir = path.slice(0, -file.originalname.length)
+      
+      // 同時考慮 {localSystemFilePath} 為 file or dir 的可能性
+      if (localPath.endsWith(file.originalname)) {
+        pathFile = localPath
+        pathDir = path.dirname(localPath)
       } else {
-        pathFile = path + '\\' + file.originalname
-        pathDir = path
+        pathFile = path.join(localPath, file.originalname)
+        pathDir = localPath
       }
-      cb(null, pathDir)
+      // 紀錄目標路徑
+      file['pathFile'] = pathFile
+      file['pathDir'] = pathDir
+      file['pathSha256'] = crypto.createHash('sha256').update(file.pathFile).digest('hex')
+      // 將檔案存放到暫存區，供後續 IO 操作
+      cb(null, process.env.TMP_PATH)
     },
     filename: (req, file, cb) => {
-
-      cb(null , file.originalname)
+      cb(null , Date.now() + '_' + file.originalname)
     }
   })
   const fileFilter = async (req, file, cb) => {
-
-    let { method } = req
-    console.log(method)
-
-    let getAccess = await checkAccess(req, path, file)
-    cb(null, getAccess)
+    cb(null, true)
   }
   const upload = multer({ storage, fileFilter })
 

@@ -24,7 +24,7 @@ app.options('*', cors())
 
 // 第一層路由
 app.use('/api', require('./routes/index'))
-app.use(/^\/(?!(api))/, (req, res, next) => next(new ForbiddenError('Invaild Path')))
+app.use('/*', (req, res, next) => next(new ForbiddenError('Invaild Path')))
 
 
 module.exports = app

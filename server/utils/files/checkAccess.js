@@ -1,8 +1,8 @@
 const fs = require('fs')
-const fsPromise = require('promise-fs')
+const fsPromises = require('fs/promises')
 
 // 檢查 request 的存取是否合法
-const checkAccess = async (req, file) => {
+const checkAccess = async (req, path) => {
   
   let { method } = req
 
@@ -11,34 +11,23 @@ const checkAccess = async (req, file) => {
     return true
   } else if (method === 'POST') {
     ifNotExistsThenDenied = false
-  } else {  // PATCH, DELETE 若檔案 or 路徑不存在，返回 Error
+  } else {  // TODO PATCH, DELETE 若檔案 or 路徑不存在，返回 Error
     ifNotExistsThenDenied = true
   }
 
-  let isExists = await checkExists(file, false)
-
-  let getAccess = !(isExists ^ ifNotExistsThenDenied)
-  if (getAccess) {
-    console.log('denied')
-  } else {
-    console.log('not denied')
-  }
-  
-  return getAccess
+  let isExists = await checkExists(path)
+  return !(isExists ^ ifNotExistsThenDenied)
 }
 
 /**
  * 檢查檔案或目錄是否存在
- * @param {Object} file
- * @param {Boolean} checkDir
+ * @param {string} path
  * @returns {Boolean} isExists
  */
-async function checkExists (file, checkDir) {
+async function checkExists (path) {
 
-  let stat
-  let checkPath = (checkDir) ? file.destination : file.path
   try {
-    await fsPromise.stat(checkPath)
+    await fsPromises.stat(path)
     return true
   } catch (err) {
     return false

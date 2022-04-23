@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const ForbiddenError = require('../utils/error/ForbiddenError')
 const validatePath = require('../utils/validatePath')
+const deleteTmpFile = require('../utils/files/deleteTmpFile')
 
 // middleware
 router.use(bodyParser.json())
@@ -16,7 +17,7 @@ router.use('/auth', validatePath, (req, res, next) => {
   next()
 })
 
-router.use('/file', require('./file'))
+router.use('/file', validatePath, require('./file'))
 
 router.use('/*', (req, res, next) => {
   if (req.validPath === true) {
@@ -28,14 +29,23 @@ router.use('/*', (req, res, next) => {
 
 
 // error handler
-router.use((err, req, res, next) => {
+router.use(async (err, req, res, next) => {
+
+  // 將暫存檔刪除
+  try {
+    await deleteTmpFile(req.file)
+  } catch (errDelTmp) {
+    next(errDelTmp)
+  }
 
   console.log(err)
   // format error and send response
   const errorLog = {
     message: undefined,
-    status: err.statusCode,
-    stack: err.stack
+    status: err.statusCode
+  }
+  if (process.env.NODE_ENV === 'development') {
+    errorLog.stack == err.stack
   }
 
   if (err.constructor.name === 'ForbiddenError') {
@@ -51,11 +61,18 @@ router.use((err, req, res, next) => {
     }
   }
 
-  return res.status(errorLog.status)
+  return res.status(errorLog.status).send(errorLog.message)
 })
 
 // response handler
-router.use((req, res, next) => {
+router.use(async (req, res, next) => {
+
+  // 將暫存檔刪除
+  try {
+    await deleteTmpFile(req.file)
+  } catch (errDelTmp) {
+    next(errDelTmp)
+  }
 
   const response = {
     success: true,
@@ -63,6 +80,7 @@ router.use((req, res, next) => {
     result: res.result || {}
   }
 
+  // TODO 回傳訊息
   return res.status(200).send(res.message)
 })
 
