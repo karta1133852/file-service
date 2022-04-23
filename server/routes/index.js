@@ -53,6 +53,11 @@ router.use(async (err, req, res, next) => {
       title: err.title,
       content: err.content
     }
+  } else if (err.constructor.name === 'NotFoundError') {
+    errorLog.message = {
+      title: err.title,
+      content: err.content
+    }
   } else {
     errorLog.status = 500
     errorLog.message = {

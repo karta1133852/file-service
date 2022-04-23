@@ -1,5 +1,5 @@
 const multer = require('multer')
-const crypto = require('crypto')
+const createHash = require('../utils/createHash')
 const path = require('path')
 
 // 動態處理路徑
@@ -22,7 +22,7 @@ const dynamicUploadSingle = async (req, res, next) => {
       // 紀錄目標路徑
       file['pathFile'] = pathFile
       file['pathDir'] = pathDir
-      file['pathSha256'] = crypto.createHash('sha256').update(file.pathFile).digest('hex')
+      file['pathSha256'] = createHash('sha256', file.pathFile)
       // 將檔案存放到暫存區，供後續 IO 操作
       cb(null, process.env.TMP_PATH)
     },

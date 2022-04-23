@@ -1,9 +1,54 @@
 const fs = require('fs')
 const fsPromises = require('fs/promises')
-const { checkExists } = require('./checkAccess')
 const ForbiddenError = require('../error/ForbiddenError')
 
 const fileOperations = {
+  // 檢查 request 的存取是否合法
+  async checkAccess (req, path) {
+    
+    let { method } = req
+
+    let ifNotExistsThenDenied
+    if (method === 'GET') {
+      return true
+    } else if (method === 'POST') {
+      ifNotExistsThenDenied = false
+    } else {  // TODO PATCH, DELETE 若檔案 or 路徑不存在，返回 Error
+      ifNotExistsThenDenied = true
+    }
+
+    let isExists = await checkExists(path)
+    return !(isExists ^ ifNotExistsThenDenied)
+  },
+  /**
+   * 檢查檔案或目錄是否存在
+   * @param {string} path
+   * @returns {Boolean} isExists
+   */
+  async checkExists (path) {
+
+    try {
+      await fsPromises.stat(path)
+      return true
+    } catch (err) {
+      return false
+    }
+  },
+  /**
+   * 檢查該 path 為目錄或檔案
+   * @param {string} path
+   * @returns {string} type
+   */
+  async checkType (path) {
+    try {
+      let stat = await fsPromises.stat(path)
+      if (stat.isDirectory()) return 'Directory'
+      else if (stat.isFile()) return 'File'
+      else return undefined
+    } catch (err) {
+      return null
+    }
+  },
   async queryFiles() {
     
   },

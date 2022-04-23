@@ -1,5 +1,5 @@
 class NotFoundError extends Error {
-  constructor (title, content, statusCode) {
+  constructor (content) {
     super('Not Found Error')
 
     this.title = '請求失敗'
