@@ -24,17 +24,17 @@ let fileRWLocks = {
 router.post('/*', require('../models/multer'), async (req, res, next) => {
   
   try {
-    let hasAccess = await fileOperations.checkAccess(req, req.file.pathFile)
-    if (!hasAccess) {
-      throw new ForbiddenError('Target file already exists.')
-    }
-
-    let sha256 = req.file.pathSha256
-
+    const sha256 = req.file.pathSha256
+    
     // start lock
     await setFileLock(fileRWLocks, sha256, 'start')
   
     await fileRWLocks.fileLocks[sha256].rwLock.write(async () => {
+
+      const isExists = await fileOperations.isExists(req.file.pathFile)
+      if (!isExists) {
+        throw new ForbiddenError('Target file already exists.')
+      }
 
       await fileOperations.createDir(req.file.pathDir)
       await fileOperations.copyFile(req.file.path, req.file.pathFile, false)

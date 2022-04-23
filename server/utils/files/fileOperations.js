@@ -17,7 +17,7 @@ const fileOperations = {
       ifNotExistsThenDenied = true
     }
 
-    let isExists = await checkExists(path)
+    let isExists = await this.isExists(path)
     return !(isExists ^ ifNotExistsThenDenied)
   },
   /**
@@ -25,7 +25,7 @@ const fileOperations = {
    * @param {string} path
    * @returns {Boolean} isExists
    */
-  async checkExists (path) {
+  async isExists (path) {
 
     try {
       await fsPromises.stat(path)
@@ -61,7 +61,7 @@ const fileOperations = {
   async copyFile(pathSrc, pathDest, overwrite = false) {
 
     // 根據 checkIsExists 檢查目標檔案是否已經存在
-    if (!overwrite && await checkExists(pathDest, false)) {
+    if (!overwrite && await this.isExists(pathDest, false)) {
       throw new ForbiddenError('Target file already exists')
     }
     
