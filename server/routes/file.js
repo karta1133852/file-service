@@ -59,7 +59,6 @@ router.get('/*', async (req, res, next) => {
       } else if (pathType === 'Directory') {
         // TODO lock all directory (?
         const filesInfo = await fileOperations.queryFiles(pathQuery, query)
-        console.log(filesInfo)
         if (filesInfo.length === 0) {
           throw new NotFoundError('Queried files not found.')
         } else {

@@ -8,7 +8,7 @@ const deleteTmpFile = require('../utils/files/deleteTmpFile')
 // 監聽前往下一層的請求
 router.use('/auth', validatePath, require('./auth'))
 
-router.use('/file', validatePath, /*require('../utils/passportAuth'),*/ require('./file'))
+router.use('/file', validatePath, require('./file'))
 
 router.use('/*', (req, res, next) => {
   if (req.validPath === true) {
