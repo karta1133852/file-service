@@ -1,10 +1,8 @@
 // 載入套件
 const router = require('express').Router()
-const contentDisposition = require('content-disposition');
-const validatePath = require('../utils/validatePath')
-const fs = require('fs')
+const passport = require('../config/passport/passport')
+const contentDisposition = require('content-disposition')
 const path = require('path')
-const redisClient = require('../models/redisClient')
 
 const ForbiddenError = require('../utils/error/ForbiddenError')
 const NotFoundError = require('../utils/error/NotFoundError')
@@ -20,6 +18,8 @@ let fileRWLocks = {
   setFileLock: new RWLock(),
   fileLocks: {}
 }
+
+router.use(passport.authenticate('jwt', { session: true }))
 
 // TODO GET request
 router.get('/*', async (req, res, next) => {
@@ -67,7 +67,7 @@ router.get('/*', async (req, res, next) => {
             isDirectory: true,
             files: filesInfo.map(fInfo => fInfo.fileName)
           }
-          res.message = result
+          res.result = result
         }
       }
 
@@ -107,7 +107,7 @@ router.post('/*', dynamicUploadSingle, async (req, res, next) => {
     // end lock
     await setFileLock(fileRWLocks, sha256, 'end')
 
-    res.message = 'File successfully uploaded.'
+    res.result = 'File successfully uploaded.'
     next()
   } catch (err) {
     next(err)
@@ -137,7 +137,7 @@ router.patch('/*', dynamicUploadSingle, async (req, res, next) => {
     // end lock
     await setFileLock(fileRWLocks, sha256, 'end')
 
-    res.message = 'File successfully updated.'
+    res.result = 'File successfully updated.'
     next()
   } catch (err) {
     next(err)
@@ -174,7 +174,7 @@ router.delete('/*', dynamicUploadSingle, async (req, res, next) => {
     // end lock
     await setFileLock(fileRWLocks, sha256, 'end')
 
-    res.message = 'File successfully deleted.'
+    res.result = 'File successfully deleted.'
     next()
   } catch (err) {
     next(err)

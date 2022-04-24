@@ -1,23 +1,14 @@
 // 載入套件
 const router = require('express').Router()
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
 const ForbiddenError = require('../utils/error/ForbiddenError')
 const validatePath = require('../utils/validatePath')
 const deleteTmpFile = require('../utils/files/deleteTmpFile')
 
-// middleware
-router.use(bodyParser.json())
-router.use(bodyParser.urlencoded({ extended: true }))
-router.use(cookieParser())
 
 // 監聽前往下一層的請求
-router.use('/auth', validatePath, (req, res, next) => {
-  res.message = 'auth'
-  next()
-})
+router.use('/auth', validatePath, require('./auth'))
 
-router.use('/file', validatePath, require('./file'))
+router.use('/file', validatePath, /*require('../utils/passportAuth'),*/ require('./file'))
 
 router.use('/*', (req, res, next) => {
   if (req.validPath === true) {
@@ -58,6 +49,11 @@ router.use(async (err, req, res, next) => {
       title: err.title,
       content: err.content
     }
+  } else if (err.constructor.name === 'UnauthorizedError') {
+    errorLog.message = {
+      title: err.title,
+      content: err.content
+    }
   } else {
     errorLog.status = 500
     errorLog.message = {
@@ -92,7 +88,7 @@ router.use(async (req, res, next) => {
   }
 
   // TODO 回傳訊息
-  return res.status(200).send(res.message)
+  return res.status(200).send(res.result)
 })
 
 
