@@ -65,12 +65,10 @@ router.patch('/*', dynamicUploadSingle, async (req, res, next) => {
 
       const isExists = await fileOperations.isExists(req.file.pathFile)
       if (!isExists) {
-        throw new ForbiddenError('Target file already exists.')
+        throw new ForbiddenError('Target file not exists.\nCannot update.')
       }
 
-      // TODO update file to specified path
-      /*await fileOperations.createDir(req.file.pathDir)
-      await fileOperations.copyFile(req.file.path, req.file.pathFile, false)*/
+      await fileOperations.copyFile(req.file.path, req.file.pathFile, true)
       
       return
     })
