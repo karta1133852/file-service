@@ -1,7 +1,10 @@
 # File Service
 
-## build docker (Server listening on port 3000)
-* ```sudo docker build -t file-service .```
+## [Github repo](https://github.com/karta1133852/file-service)
+
+## build and run docker (Server listening on port 3000)
+* ```docker build -t file-service .```
+* ```docker run -p 3000:3000 -d file-service```
 
 ## normal run
 * ```npm run start```
