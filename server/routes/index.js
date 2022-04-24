@@ -73,10 +73,16 @@ router.use(async (err, req, res, next) => {
 router.use(async (req, res, next) => {
 
   // 將暫存檔刪除
-  try {
-    await deleteTmpFile(req.file)
-  } catch (errDelTmp) {
-    next(errDelTmp)
+  if (req.method !== 'GET') {
+    try {
+      await deleteTmpFile(req.file)
+    } catch (errDelTmp) {
+      next(errDelTmp)
+    }
+  }
+  
+  if (res.alreadySent) {
+    return
   }
 
   const response = {
