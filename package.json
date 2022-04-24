@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/app.js",
     "dev": "cross-env NODE_ENV=development IS_LOCAL=true nodemon --exec \"node server/app.js\"",
+    "docker": "cross-env NODE_ENV=production ROOT_PATH=\"/usr/src/local/files\" TMP_PATH=\"/usr/src/local/tmp\" node server/app.js",
     "inspect:license": "license-checker --summary --failOn \"AGPL 3.0\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

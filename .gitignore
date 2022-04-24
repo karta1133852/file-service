@@ -13,6 +13,3 @@ test.js
 .DS_Store
 
 .serverless
-
-# 存放檔案
-storage
